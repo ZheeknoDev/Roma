@@ -1,0 +1,6 @@
+/vendor
+/vendor/*
+/public
+/public/*
+/docker-compose.yml
+/dockerfile
