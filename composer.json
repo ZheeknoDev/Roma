@@ -1,0 +1,24 @@
+{
+    "name": "zheeknodev/roma",
+    "description": "A simple PHP Routing, Authenticate and Middleware.",
+    "type": "library",
+    "require-dev": {
+        "zheeknodev/sipher": "dev-main",
+        "symfony/var-dumper": "5.4.x-dev"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Zheeknodev\\Ramo\\": "src/",
+            "Zheeknodev\\Roma\\Router\\": "src/Router/",
+            "Zheeknodev\\Roma\\Middleware\\": "src/Middleware/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ZheeknoDev",
+            "email": "million8.me@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
