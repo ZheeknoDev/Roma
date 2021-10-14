@@ -228,10 +228,10 @@ final class Request
                 $csrfServer = hash_hmac('sha3-384', session_id(), $hash_hmac_key);
                 $csrfClient = base64_decode($csrfToken);
                 $resultVerify = (hash_equals($csrfServer, $csrfClient)) ? true : false;
-            }
 
-            if(!$resultVerify) {
-                return Response::instance()->redirect('/400');
+                if(!$resultVerify) {
+                    return Response::instance()->redirect('/400');
+                }
             }
         }
     }
