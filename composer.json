@@ -9,7 +9,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Zheeknodev\\Ramo\\": "src/",
+            "Zheeknodev\\Roma\\": "src/",
             "Zheeknodev\\Roma\\Router\\": "src/Router/",
             "Zheeknodev\\Roma\\Middleware\\": "src/Middleware/"
         }
