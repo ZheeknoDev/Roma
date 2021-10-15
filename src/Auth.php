@@ -53,7 +53,6 @@ abstract class Auth
 
     final public static function getApiToken(string $groupName)
     {
-        new self();
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
         return (!empty($result) && is_object($result)) ? $result : null;
@@ -61,7 +60,6 @@ abstract class Auth
 
     final public static function verifyApiToken(array $data)
     {
-        new self();
         if (array_keys($data) == ['authorized', 'group', 'check_hash']) {
             $hasValue = array_filter($data, function ($value) {
                 return ($value !== null);
