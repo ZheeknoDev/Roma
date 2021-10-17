@@ -12,16 +12,16 @@
 
 namespace Zheeknodev\Roma\Middleware;
 
-use Zheeknodev\Roma\Auth;
+use Zheeknodev\Roma\BasicAuth;
 use Zheeknodev\Roma\Middleware\InterfaceMiddleware;
 use Zheeknodev\Roma\Router\Response;
 
-class Authenticate implements InterfaceMiddleware
+class RequestAuth implements InterfaceMiddleware
 {
     public function handle($request, callable $next)
     {
         # validate the API's token.
-        if (Auth::via('default')->verifyApiToken('bearer')) {
+        if (BasicAuth::instance()->hasAuthorized('bearer')) {
             return $next($request);
         }
         return Response::instance()->redirect('/404');

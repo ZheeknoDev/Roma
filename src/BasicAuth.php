@@ -14,7 +14,7 @@ use Exception;
 use Zheeknodev\Roma\Router\Request;
 use Zheeknodev\Sipher\Sipher;
 
-abstract class Auth
+final class BasicAuth
 {
     private static $_groups;
     private static $_origin_key;
@@ -43,6 +43,11 @@ abstract class Auth
         self::$_split_key = hex2bin(base64_decode('MjQ3OTI0Nzg='));
     }
 
+    final public static function instance()
+    {
+        return new self();
+    }
+
     final public static function setup(array $setup)
     {
         if (array_keys($setup) === ['origin_key', 'groups']) {
@@ -51,14 +56,20 @@ abstract class Auth
         }
     }
 
-    final public static function getApiToken(string $groupName)
-    {
+    final public function getApiToken(string $groupName)
+    { 
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
         return (!empty($result) && is_object($result)) ? $result : null;
     }
 
-    final public static function verifyApiToken(array $data)
+    final public function hasAuthorized(string $authorized)
+    {
+        $request = self::$_request;
+        return ($request->hasAuthorized($authorized)) ? true : false;
+    }
+
+    final public function verifyApiToken(array $data)
     {
         if (array_keys($data) == ['authorized', 'group', 'check_hash']) {
             $hasValue = array_filter($data, function ($value) {
@@ -69,6 +80,7 @@ abstract class Auth
                 $sipher = self::$_sipher_package;
                 $hasAuthorized = $request->hasAuthorized($data['authorized']);
                 $getAuthorizedToken = $request->getAuthorizedToken();
+                dd($hasAuthorized, !empty($getAuthorizedToken), !empty(self::$_sipher_package));
                 if($hasAuthorized && !empty($getAuthorizedToken) && !empty(self::$_sipher_package)) {
                     $token = base64_decode($getAuthorizedToken);
                     $explode = explode(self::$_split_key, $token);

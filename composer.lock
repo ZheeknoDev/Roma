@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b1abeceba1e8033776a6c9ac215fbb6",
+    "content-hash": "10211d449346e703610d0a18f39ab96d",
     "packages": [],
     "packages-dev": [
         {
@@ -178,12 +178,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "42a7c869e84fe8fdea13026bfb05b21de19293cc"
+                "reference": "a60e015a49db26dda873ca3ef74776db65f5e709"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/42a7c869e84fe8fdea13026bfb05b21de19293cc",
-                "reference": "42a7c869e84fe8fdea13026bfb05b21de19293cc",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/a60e015a49db26dda873ca3ef74776db65f5e709",
+                "reference": "a60e015a49db26dda873ca3ef74776db65f5e709",
                 "shasum": ""
             },
             "require": {
@@ -259,7 +259,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-08T11:52:27+00:00"
+            "time": "2021-10-06T12:45:54+00:00"
         },
         {
             "name": "zheeknodev/sipher",
