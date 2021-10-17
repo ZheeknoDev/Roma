@@ -69,12 +69,6 @@ final class BasicAuth
         return false;
     }
 
-    final public function hasAuthorized(string $authorized)
-    {
-        $request = self::$_request;
-        return ($request->hasAuthorized($authorized)) ? true : false;
-    }
-
     final public function verifyApiToken(array $data)
     {
         if (array_keys($data) == ['authorized', 'group', 'check_hash']) {
