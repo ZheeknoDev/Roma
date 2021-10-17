@@ -45,7 +45,7 @@ class Router
             # verify csrf token for method POST
             $this->request->verifyCsrf();
             # call route function
-            call_user_func_array([$this, 'route'], $arguments);
+            return call_user_func_array([$this, 'route'], $arguments);
         } 
     }
 
@@ -102,7 +102,7 @@ class Router
      * @param array $middleware - list of the middlewares
      * @return void
      */
-    public function middleware(array $middleware): void
+    public function middleware(array $middleware) : void
     {
         if (!empty($this->routeRequest['callable']) && empty($this->routeRequest['middleware'])) {
             $this->routeRequest['middleware'] = $middleware;
@@ -233,7 +233,6 @@ class Router
                 $this->routeRequest['middleware'] = $this->routeGroupMiddleware;
             }
         }
-
         # return this class
         return $this;
     }

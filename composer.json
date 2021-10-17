@@ -11,7 +11,8 @@
         "psr-4": {
             "Zheeknodev\\Roma\\": "src/",
             "Zheeknodev\\Roma\\Router\\": "src/Router/",
-            "Zheeknodev\\Roma\\Middleware\\": "src/Middleware/"
+            "Zheeknodev\\Roma\\Middleware\\": "src/Middleware/",
+            "Zheeknodev\\Roma\\Middleware\\Api\\": "src/Middleware/Api/"
         }
     },
     "authors": [

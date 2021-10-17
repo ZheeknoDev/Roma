@@ -10,12 +10,12 @@
  * @link     https://github.com/ZheeknoDev/Roma
  */
 
-namespace Zheeknodev\Roma\Middleware;
+namespace Zheeknodev\Roma\Middleware\Api;
 
 use Zheeknodev\Roma\Middleware\InterfaceMiddleware;
 use Zheeknodev\Roma\Router\Response;
 
-class RequestApi implements InterfaceMiddleware
+class RequestWithApi implements InterfaceMiddleware
 {
     public function handle($request, callable $next)
     {

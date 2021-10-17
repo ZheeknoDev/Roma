@@ -20,7 +20,7 @@ final class BasicAuth
     private static $_origin_key;
     private static $_request;
     private static $_sipher_package;
-    private static $_split_key;
+    private static $_saparator;
 
     public function __construct()
     {
@@ -39,8 +39,8 @@ final class BasicAuth
         }
         # set the request class
         self::$_request = new Request;
-        # set split word
-        self::$_split_key = hex2bin(base64_decode('MjQ3OTI0Nzg='));
+        # set saparator
+        self::$_saparator = hex2bin(base64_decode('MjQ3OTI0Nzg='));
     }
 
     final public static function instance()
@@ -60,7 +60,13 @@ final class BasicAuth
     {
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
-        return (!empty($result) && is_object($result)) ? $result : null;
+        if(!empty($result) && is_object($result)) {
+            return (object) [
+                'token' => bin2hex(base64_encode(implode(self::$_saparator, [$result->encrypted, $result->key]))),
+                'check_hash' => $result->check_hash
+            ];
+        }
+        return false;
     }
 
     final public function hasAuthorized(string $authorized)
@@ -81,8 +87,8 @@ final class BasicAuth
                 $hasAuthorized = $request->hasAuthorized($data['authorized']);
                 $getAuthorizedToken = $request->getAuthorizedToken();
                 if ($hasAuthorized && !empty($getAuthorizedToken) && !empty(self::$_sipher_package)) {
-                    $token = base64_decode($getAuthorizedToken);
-                    $explode = explode(self::$_split_key, $token);
+                    $token = base64_decode(hex2bin($getAuthorizedToken));
+                    $explode = explode(self::$_saparator, $token);
                     if (count($explode) == 2 && !empty($data['check_hash'])) {
                         return $sipher->get_verify_encrypt($explode[0], $data['check_hash'], $explode[1]);
                     }
