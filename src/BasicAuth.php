@@ -69,6 +69,12 @@ final class BasicAuth
         return false;
     }
 
+    final public static function via()
+    {
+        $self = self::instance();
+        return $self::$_sipher_package;
+    }
+
     final public function verifyApiToken(array $data)
     {
         if (array_keys($data) == ['authorized', 'group', 'check_hash']) {
