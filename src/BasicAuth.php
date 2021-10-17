@@ -57,7 +57,7 @@ final class BasicAuth
     }
 
     final public function getApiToken(string $groupName)
-    { 
+    {
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
         return (!empty($result) && is_object($result)) ? $result : null;
@@ -75,16 +75,15 @@ final class BasicAuth
             $hasValue = array_filter($data, function ($value) {
                 return ($value !== null);
             });
-            if($hasValue) {
+            if ($hasValue) {
                 $request = self::$_request;
                 $sipher = self::$_sipher_package;
                 $hasAuthorized = $request->hasAuthorized($data['authorized']);
                 $getAuthorizedToken = $request->getAuthorizedToken();
-                dd($hasAuthorized, !empty($getAuthorizedToken), !empty(self::$_sipher_package));
-                if($hasAuthorized && !empty($getAuthorizedToken) && !empty(self::$_sipher_package)) {
+                if ($hasAuthorized && !empty($getAuthorizedToken) && !empty(self::$_sipher_package)) {
                     $token = base64_decode($getAuthorizedToken);
                     $explode = explode(self::$_split_key, $token);
-                    if(count($explode) == 2 && !empty($data['check_hash'])) {
+                    if (count($explode) == 2 && !empty($data['check_hash'])) {
                         return $sipher->get_verify_encrypt($explode[0], $data['check_hash'], $explode[1]);
                     }
                 }
