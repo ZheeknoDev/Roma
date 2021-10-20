@@ -69,7 +69,7 @@ final class BasicAuth
         return false;
     }
 
-    final public static function via()
+    final public static function sipher()
     {
         $self = self::instance();
         return $self::$_sipher_package;
@@ -77,7 +77,8 @@ final class BasicAuth
 
     final public function verifyApiToken(array $data)
     {
-        if (array_keys($data) == ['authorized', 'group', 'check_hash']) {
+        $array_keys = ['authorized', 'group', 'token', 'check_hash'];
+        if (array_keys($data) == $array_keys) {
             $hasValue = array_filter($data, function ($value) {
                 return ($value !== null);
             });
@@ -85,9 +86,8 @@ final class BasicAuth
                 $request = self::$_request;
                 $sipher = self::$_sipher_package;
                 $hasAuthorized = $request->hasAuthorized($data['authorized']);
-                $getAuthorizedToken = $request->getAuthorizedToken();
-                if ($hasAuthorized && !empty($getAuthorizedToken) && !empty(self::$_sipher_package)) {
-                    $token = base64_decode(hex2bin($getAuthorizedToken));
+                if ($hasAuthorized && !empty(self::$_sipher_package)) {
+                    $token = base64_decode(hex2bin($data['token']));
                     $explode = explode(self::$_saparator, $token);
                     if (count($explode) == 2 && !empty($data['check_hash'])) {
                         return $sipher->get_verify_encrypt($explode[0], $data['check_hash'], $explode[1]);
