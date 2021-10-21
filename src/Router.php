@@ -18,6 +18,7 @@ class Router
 {
     private const REQUEST_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
+    private $routeCache;
     private $routeRequest;
     private $routeGroupMiddleware;
     private $routeGroupPrefix;
@@ -46,7 +47,7 @@ class Router
             $this->request->verifyCsrf();
             # call route function
             return call_user_func_array([$this, 'route'], $arguments);
-        } 
+        }
     }
 
     /**
@@ -55,28 +56,41 @@ class Router
      */
     final public function dispatch()
     {
-        # execute route's request
-        if (!empty($this->routeRequest['callable'])) {
-            # clear route's group prefix
-            $this->routeGroupPrefix = null;
-            # clear route's group middleware
-            $this->routeGroupMiddleware = null;
-
-            # call the middleware
-            $condition_call_middleware_1 = !empty($this->middleware) ? 1 : 0;
-            $condition_call_middleware_2 = !empty($this->routeRequest['middleware']) && is_array($this->routeRequest['middleware']) ? 1 : 0;
-            if ($condition_call_middleware_1 && $condition_call_middleware_2) {
-                foreach ($this->routeRequest['middleware'] as $middleware) {
-                    $this->middleware->call($middleware);
-                }
+        if ($this->routeRequest) {
+            $routeRequest = array();
+            foreach ($this->routeRequest as $array) {
+                $routeRequest = [
+                    'callable' => $array['callable'],
+                    'middleware' => $array['middleware']
+                ];
             }
 
-            # execute callable
-            echo call_user_func($this->routeRequest['callable']);
-        } else {
-            # 404 the request not found
-            echo $this->onHttpError(404);
+            # execute route's request
+            if (!empty($routeRequest['callable'])) {
+                # clear route's group prefix
+                $this->routeGroupPrefix = null;
+                # clear route's group middleware
+                $this->routeGroupMiddleware = null;
+
+                # call the middleware
+                $condition_call_middleware_1 = !empty($this->middleware) ? 1 : 0;
+                $condition_call_middleware_2 = !empty($routeRequest['middleware']) && is_array($routeRequest['middleware']) ? 1 : 0;
+                if ($condition_call_middleware_1 && $condition_call_middleware_2) {
+                    foreach ($routeRequest['middleware'] as $middleware) {
+                        $this->middleware->call($middleware);
+                    }
+                }
+
+                # execute callable
+                $this->routeRequest = null;
+                echo call_user_func($routeRequest['callable']);
+                exit();
+            }
         }
+
+        # 404 the request not found
+        echo $this->onHttpError(404);
+        exit();
     }
 
     /**
@@ -86,12 +100,23 @@ class Router
      */
     public function group(array $route, callable $callable)
     {
+        # prefix
         if (!empty($route['prefix'])) {
-            $this->routeGroupPrefix = $route['prefix'];
+            if (!empty($this->routeGroupPrefix)) {
+                $this->routeGroupPrefix = implode('', [$this->routeGroupPrefix, $route['prefix']]);
+            } else {
+                $this->routeGroupPrefix = $route['prefix'];
+            }
         }
+        # middleware
         if (!empty($route['middleware'])) {
-            $this->routeGroupMiddleware = $route['middleware'];
+            if (!empty($this->routeGroupMiddleware)) {
+                $this->routeGroupMiddleware = array_merge($this->routeGroupMiddleware, $route['middleware']);
+            } else {
+                $this->routeGroupMiddleware = $route['middleware'];
+            }
         }
+
         if (is_callable($callable)) {
             echo call_user_func($callable, $route['prefix']);
         }
@@ -102,10 +127,17 @@ class Router
      * @param array $middleware - list of the middlewares
      * @return void
      */
-    public function middleware(array $middleware) : void
+    public function middleware(array $middleware): void
     {
-        if (!empty($this->routeRequest['callable']) && empty($this->routeRequest['middleware'])) {
-            $this->routeRequest['middleware'] = $middleware;
+        $currentRouteRequest = $this->routeRequest[$this->routeCache];
+        if (!empty($currentRouteRequest)) {
+            $cond_1 = ($currentRouteRequest['route'] == $this->request->requestUri) ? 1 : 0;
+            $cond_2 = !empty($currentRouteRequest['callable']) ? 1 : 0;
+            $cond_3 = empty($currentRouteRequest['middleware']) ? 1 : 0;
+            if ($cond_1 && $cond_2 && $cond_3) {
+                $currentRouteRequest['middleware'] = $middleware;
+                $this->routeRequest[$this->routeCache] = $currentRouteRequest;
+            }
         }
     }
 
@@ -206,9 +238,14 @@ class Router
         array_shift($explode_route);
         array_shift($explode_current_request_uri);
 
+        # define router request
+        $routeRequest = array();
+        $this->routeCache = random_int(000000, 999999);
+        $routeRequest['route'] = $route;
+
         # default path '/'
         if ($explode_route[0] == '' && count($explode_current_request_uri) == 0) {
-            $this->routeRequest['callable'] = $getCallable($callable, array());
+            $routeRequest['callable'] = $getCallable($callable, array());
         }
 
         # if section of route & current request are equal.
@@ -226,13 +263,17 @@ class Router
                 }
             }
             # set callable into route's request
-            $this->routeRequest['callable'] = $getCallable($callable, $arguments);
-
-            # set middleware of group into route's request
-            if (!empty($this->routeGroupPrefix) && !empty($this->routeGroupMiddleware)) {
-                $this->routeRequest['middleware'] = $this->routeGroupMiddleware;
-            }
+            $routeRequest['callable'] = $getCallable($callable, $arguments);
         }
+
+        # set middleware of group into route's request
+        $routeRequest['middleware'] = (!empty($this->routeGroupPrefix) && !empty($this->routeGroupMiddleware)) ? $this->routeGroupMiddleware : null;
+
+        # set router request
+        if (!empty($routeRequest['callable'])) {
+            $this->routeRequest[$this->routeCache] = $routeRequest;
+        }
+
         # return this class
         return $this;
     }
