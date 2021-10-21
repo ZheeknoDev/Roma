@@ -64,7 +64,7 @@ final class Request
             $key = $this->strCamelCase($key, '-[a-z]');
             $requestApache[$key] = $value;
         }
-        return (!empty($requestName) ? $requestApache[$requestName] : (object) $requestApache);
+        return (!empty($requestApache[$requestName]) ? $requestApache[$requestName] : null);
     }
 
     /**
