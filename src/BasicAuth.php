@@ -43,12 +43,21 @@ final class BasicAuth
         self::$_saparator = hex2bin(base64_decode('MjQ3OTI0Nzg='));
     }
 
-    final public static function instance()
+    /**
+     * to get intance of class
+     * @return object
+     */
+    final public static function instance() : object
     {
         return new self();
     }
 
-    final public static function setup(array $setup)
+    /**
+     * Setup the origin key, group
+     * @param array $setup ['origin_key', 'groups']
+     * @return void
+     */
+    final public static function setup(array $setup) : void
     {
         if (array_keys($setup) === ['origin_key', 'groups']) {
             self::$_groups = (is_array($setup['groups']) ? $setup['groups'] : array());
@@ -56,7 +65,12 @@ final class BasicAuth
         }
     }
 
-    final public function getApiToken(string $groupName)
+    /**
+     * to get the API's token from the generator
+     * @param string $groupName
+     * @return object
+     */
+    final public function getApiToken(string $groupName) : object
     {
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
@@ -69,13 +83,22 @@ final class BasicAuth
         return false;
     }
 
-    final public static function sipher()
+    /**
+     * to call the Sipher class
+     * @return object
+     */
+    final public static function sipher() : object
     {
         $self = self::instance();
         return $self::$_sipher_package;
     }
 
-    final public function verifyApiToken(array $data)
+    /**
+     * to verify the API's token
+     * @param array $data ['authorized', 'group', 'token', 'check_hash'];
+     * @return bool
+     */
+    final public function verifyApiToken(array $data) : bool
     {
         $array_keys = ['authorized', 'group', 'token', 'check_hash'];
         if (array_keys($data) == $array_keys) {

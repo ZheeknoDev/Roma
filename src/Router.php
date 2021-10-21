@@ -102,21 +102,13 @@ class Router
     {
         # prefix
         if (!empty($route['prefix'])) {
-            if (!empty($this->routeGroupPrefix)) {
-                $this->routeGroupPrefix = implode('', [$this->routeGroupPrefix, $route['prefix']]);
-            } else {
-                $this->routeGroupPrefix = $route['prefix'];
-            }
+            $this->routeGroupPrefix = !empty($this->routeGroupPrefix) ? implode('', [$this->routeGroupPrefix, $route['prefix']]) : $route['prefix'];
         }
         # middleware
         if (!empty($route['middleware'])) {
-            if (!empty($this->routeGroupMiddleware)) {
-                $this->routeGroupMiddleware = array_merge($this->routeGroupMiddleware, $route['middleware']);
-            } else {
-                $this->routeGroupMiddleware = $route['middleware'];
-            }
+            $this->routeGroupMiddleware = !empty($this->routeGroupMiddleware) ? array_merge($this->routeGroupMiddleware, $route['middleware']) : $route['middleware'];
         }
-
+        # callable
         if (is_callable($callable)) {
             echo call_user_func($callable, $route['prefix']);
         }
@@ -129,13 +121,10 @@ class Router
      */
     public function middleware(array $middleware): void
     {
-        $currentRouteRequest = $this->routeRequest[$this->routeCache];
-        if (!empty($currentRouteRequest)) {
-            $cond_1 = ($currentRouteRequest['route'] == $this->request->requestUri) ? 1 : 0;
-            $cond_2 = !empty($currentRouteRequest['callable']) ? 1 : 0;
-            $cond_3 = empty($currentRouteRequest['middleware']) ? 1 : 0;
-            if ($cond_1 && $cond_2 && $cond_3) {
-                $currentRouteRequest['middleware'] = $middleware;
+        if (!empty($this->routeRequest) && !empty($this->routeRequest[$this->routeCache])) {
+            $currentRouteRequest = $this->routeRequest[$this->routeCache];
+            if (($currentRouteRequest['route'] == $this->request->requestUri) && !empty($currentRouteRequest['callable'])) {
+                $currentRouteRequest['middleware'] = !empty($currentRouteRequest['middleware']) ? array_merge($currentRouteRequest['middleware'], $middleware) : $middleware;
                 $this->routeRequest[$this->routeCache] = $currentRouteRequest;
             }
         }
