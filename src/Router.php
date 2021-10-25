@@ -48,6 +48,7 @@ class Router
             # call route function
             return call_user_func_array([$this, 'route'], $arguments);
         }
+        return $this;
     }
 
     /**

@@ -3,5 +3,7 @@
 /public
 /public/*
 /src/Middleware/Api/RequestWithAuth.php
+/src/Controller
+/src/Controller/*
 /docker-compose.yml
 /dockerfile
