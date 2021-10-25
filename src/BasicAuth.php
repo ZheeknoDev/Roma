@@ -47,7 +47,7 @@ final class BasicAuth
      * to get intance of class
      * @return object
      */
-    final public static function instance() : object
+    final public static function instance(): object
     {
         return new self();
     }
@@ -57,7 +57,7 @@ final class BasicAuth
      * @param array $setup ['origin_key', 'groups']
      * @return void
      */
-    final public static function setup(array $setup) : void
+    final public static function setup(array $setup): void
     {
         if (array_keys($setup) === ['origin_key', 'groups']) {
             self::$_groups = (is_array($setup['groups']) ? $setup['groups'] : array());
@@ -70,11 +70,11 @@ final class BasicAuth
      * @param string $groupName
      * @return object
      */
-    final public function getApiToken(string $groupName) : object
+    final public function getApiToken(string $groupName): object
     {
         $sipher = self::$_sipher_package;
         $result = $sipher->get_string_encrypt(self::$_groups[$groupName]);
-        if(!empty($result) && is_object($result)) {
+        if (!empty($result) && is_object($result)) {
             return (object) [
                 'token' => bin2hex(base64_encode(implode(self::$_saparator, [$result->encrypted, $result->key]))),
                 'check_hash' => $result->check_hash
@@ -84,10 +84,56 @@ final class BasicAuth
     }
 
     /**
+     * to generate the basic of authorization token
+     * @return string
+     */
+    final public function getBasicAuthToken()
+    {
+        if (!empty(self::$_sipher_package)) {
+            $sipher = self::$_sipher_package;
+            $str16h = $sipher::randomString(16);
+            $str8t = $sipher::randomString(8);
+            $encrypt = $sipher->get_crypt(self::$_origin_key);
+            if (!empty($encrypt)) {
+                return base64_encode(implode(self::$_saparator, [$str16h, $encrypt, $str8t]));
+            }
+        }
+        return false;
+    }
+
+    /**
+     * to verify basic of authorization
+     * @return bool
+     */
+    final public static function hasBasicAuthorized($request)
+    {
+        $basicAuth = self::instance();
+        if ($request->hasAuthorized('basic')) {
+            $basicToken = $request->getAuthorizedToken();
+            if (!empty($basicToken)) {
+                $basicToken = base64_decode($basicToken);
+                $explode = explode($basicAuth::$_saparator, $basicToken);
+                $hasValue = array_filter($explode, function ($value) {
+                    return ($value !== null);
+                });
+                if (count($explode) == 3 && !empty($hasValue)) {
+                    $cond_1 = strlen($explode[0]) == 16 ? 1 : 0;
+                    $cond_2 = strlen($explode[2]) == 8 ? 1 : 0;
+                    if ($cond_1 && $cond_2) {
+                        $sipher = $basicAuth::$_sipher_package;
+                        return $sipher->get_crypt_verify($basicAuth::$_origin_key, $explode[1]);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * to call the Sipher class
      * @return object
      */
-    final public static function sipher() : object
+    final public static function sipher(): object
     {
         $self = self::instance();
         return $self::$_sipher_package;
@@ -98,7 +144,7 @@ final class BasicAuth
      * @param array $data ['authorized', 'group', 'token', 'check_hash'];
      * @return bool
      */
-    final public function verifyApiToken(array $data) : bool
+    final public function verifyApiToken(array $data): bool
     {
         $array_keys = ['authorized', 'group', 'token', 'check_hash'];
         if (array_keys($data) == $array_keys) {
