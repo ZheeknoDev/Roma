@@ -2,5 +2,6 @@
 /vendor/*
 /public
 /public/*
+/src/Middleware/Api/RequestWithAuth.php
 /docker-compose.yml
 /dockerfile
