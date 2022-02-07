@@ -90,7 +90,7 @@ class Router
         }
 
         # 404 the request not found
-        echo $this->onHttpError(404);
+        echo $this->onHttpError();
         exit();
     }
 
@@ -136,14 +136,29 @@ class Router
      * @param int $code - define the HTTP response code to response
      * @param string|callable $callable
      */
-    public function onHttpError(int $code = 404)
+    public function onHttpError(int $code = null)
     {
-        if (!empty($code)) {
-            $this->response->returnJsonPattern->response = [
-                'message' => $this->response->getResponseMessage($code)
-            ];
-            return $this->response->json($this->response->returnJsonPattern, $code);
+        if ($code === 400) {
+            return $this->response->failBadRequest();
         }
+
+        if ($code === 401) {
+            return $this->response->failUnauthorized();
+        }
+
+        if ($code === 403) {
+            return $this->response->failForbidden();
+        }
+
+        if (empty($code) || is_null($code) || $code === 404) {
+            return $this->response->failNotFound();
+        }
+
+        if ($code === 405) {
+            return $this->response->failNotFound();
+        }
+
+        return $this->response->fail([], $code);
     }
 
     /**

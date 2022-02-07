@@ -14,8 +14,6 @@ use Zheeknodev\Roma\Router\Request;
 
 final class Response
 {
-    public $returnJsonPattern;
-
     private const STATUS_CODES = [
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -64,10 +62,6 @@ final class Response
     public function __construct(Request $request = null)
     {
         $this->request = $request;
-        $this->returnJsonPattern = (object) [
-            'status' => false,
-            'response' => null
-        ];
     }
 
     final public function __debugInfo()
@@ -75,32 +69,74 @@ final class Response
         return;
     }
 
-    public static function instance()
+    /**
+     * Return error respond.
+     * @param array $object
+     * @param integer $code
+     * @return void
+     */
+    final public function fail(array $object = [], int $code)
     {
-        return new self(new Request);
+        return $this->respond([
+            'status' => false,
+            'response' => (empty($object) ? ['error' => $this->getResponseMessage($code)] : $object),
+            'error' => $code,
+        ], $code);
     }
 
     /**
-     * Response the object to be a json object
-     * @param string|array|object $object
-     * @param int $http_response_code - default is 200 
+     * Return error bad request.
+     * @param array $object
+     * @return void
      */
-    final public function json($object, int $http_response_code = 200)
+    final public function failBadRequest(array $object = [])
     {
-        // remove any string that could create an invalid JSON 
-        if (ob_get_length() > 0) {
-            ob_clean();
-        }
-        // this will clean up any previously added headers, to start clean
-        header_remove();
-        // Set the content type to JSON and charset 
-        header("Content-type: application/json; charset=utf-8");
-        // Set your HTTP response code, 2xx = SUCCESS
-        http_response_code($http_response_code);
-        // encode your PHP Object or Array into a JSON string.
-        echo json_encode($object);
+        return $this->fail($object, 400);
+    }
 
-        exit();
+    /**
+     * Return error unauthorized.
+     * @param array $object
+     * @return void
+     */
+    final public function failUnauthorized(array $object = [])
+    {
+        return $this->fail($object, 401);
+    }
+
+    /**
+     * Return error forbidden.
+     * @param array $object
+     * @return void
+     */
+    final public function failForbidden(array $object = [])
+    {
+        return $this->fail($object, 403);
+    }
+
+    /**
+     * Return error not found
+     * @param array $object
+     * @return void
+     */
+    final public function failNotFound(array $object = [])
+    {
+        return $this->fail($object, 404);
+    }
+
+    /**
+     * Retirn the methode is not allow.
+     * @param array $object
+     * @return void
+     */
+    final public function failMethodNotAllow(array $object = [])
+    {
+        return $this->fail($object, 405);
+    }
+
+    public static function instance()
+    {
+        return new self(new Request);
     }
 
     /**
@@ -123,6 +159,30 @@ final class Response
         $request_uri = empty($path) ? '/' : $path;
         $redirect_to = $this->request->pathinfo($request_uri);
         header("Location: {$redirect_to}");
+        exit();
+    }
+
+    /**
+     * Response the object to be a json object
+     * @param array $object
+     * @param int $http_response_code - default is 200 
+     * @return void
+     */
+    final public function respond(array $object = [], int $http_response_code = 200)
+    {
+        // remove any string that could create an invalid JSON 
+        if (ob_get_length() > 0) {
+            ob_clean();
+        }
+        // this will clean up any previously added headers, to start clean
+        header_remove();
+        // Set the content type to JSON and charset 
+        header("Content-type: application/json; charset=utf-8");
+        // Set your HTTP response code, 2xx = SUCCESS
+        http_response_code($http_response_code);
+        // encode your PHP Object or Array into a JSON string.
+        echo json_encode($object);
+
         exit();
     }
 }
